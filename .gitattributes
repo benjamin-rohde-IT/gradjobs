@@ -1,0 +1,5 @@
+# Normalize line endings so the Python/RSS text parsing behaves the same
+# on Windows and on the Linux GitHub Actions runner.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
