@@ -1,0 +1,43 @@
+RSS sources...
+  Jobindex: 23
+  IT-Jobbank: 19
+  Akademikernes: 374
+Workday...
+  [Accenture] workday Denmark=30
+  [PwC] workday Denmark=18
+HR-Manager...
+SuccessFactors...
+WordPress...
+LinkedIn...
+
+DONE: 88 unique relevant jobs -> data/jobs.json
+   Akademikernes: 49
+   LinkedIn: 16
+   KPMG: 8
+   IT-Jobbank: 6
+   Jobindex: 4
+   Accenture (Workday): 3
+   Valcon: 2
+Wrote C:\Users\Benjamin\gradjobs\index.html (50727 bytes, 88 jobs)
+===== 2026-11-11 23:27:13 =====
+RSS sources...
+  Jobindex: 23
+  IT-Jobbank: 19
+  Akademikernes: 374
+Workday...
+  [Accenture] workday Denmark=31
+  [PwC] workday Denmark=18
+HR-Manager...
+SuccessFactors...
+WordPress...
+LinkedIn...
+
+DONE: 88 unique relevant jobs -> data/jobs.json
+   Akademikernes: 49
+   LinkedIn: 16
+   KPMG: 8
+   IT-Jobbank: 6
+   Jobindex: 4
+   Accenture (Workday): 3
+   Valcon: 2
+Wrote C:\Users\Benjamin\gradjobs\index.html (50725 bytes, 88 jobs)

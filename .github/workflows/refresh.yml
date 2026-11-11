@@ -1,0 +1,102 @@
+name: Refresh jobs & deploy site
+
+on:
+  schedule:
+    # GitHub cron is UTC. Copenhagen is UTC+1 (winter) / UTC+2 (summer),
+    # so we fire at both 04:00 and 05:00 UTC and the "local hour" guard below
+    # lets exactly one of them through at 06:00 Europe/Copenhagen year-round.
+    - cron: "0 4,5 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write      # commit refreshed data back to the repo
+  pages: write         # deploy to GitHub Pages
+  id-token: write      # required by actions/deploy-pages
+
+concurrency:
+  group: refresh-and-deploy
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+    steps:
+      - name: Decide whether this trigger should build
+        id: gate
+        run: |
+          echo "Local time: $(TZ=Europe/Copenhagen date '+%Y-%m-%d %H:%M %Z')"
+          HOUR=$(TZ=Europe/Copenhagen date +%H)
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "Manual/push trigger - proceeding."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" = "06" ]; then
+            echo "06:00 in Copenhagen - proceeding."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Hour is $HOUR locally, not 06 - skipping this trigger."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Scrape job sources
+        if: steps.gate.outputs.run == 'true'
+        run: python scraper.py 2>&1 | tee -a data/scrape.log
+        continue-on-error: true   # a dead source must not kill the deploy
+
+      - name: Generate site
+        if: steps.gate.outputs.run == 'true'
+        run: python generate_site.py
+
+      - name: Commit refreshed data and site
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/jobs.json index.html data/scrape.log
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            COUNT=$(python -c "import json;print(json.load(open('data/jobs.json',encoding='utf-8'))['count'])")
+            git commit -m "chore: refresh job listings (${COUNT} positions) [skip ci]"
+            git push
+          fi
+
+      - name: Assemble Pages artifact
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='_site' --exclude='data' \
+                --exclude='.github' --exclude='__pycache__' . _site/
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.gate.outputs.run == 'true'
+        with:
+          path: _site
+
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
