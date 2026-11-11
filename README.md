@@ -5,11 +5,17 @@ intersection of IT and business** (AI consultant, business analyst, digital &
 technology consulting) across Denmark — tailored for a CBS MSc in Business
 Administration & Information Systems.
 
+## Live site
+
+**https://benjamin-rohde-it.github.io/gradjobs/** — auto-deployed to GitHub Pages
+by GitHub Actions.
+
 ## What it does
 
-Every morning at **06:00** (Europe/Copenhagen) a scheduled job runs the scraper,
-filters for graduate/entry IT+business roles in Denmark, and regenerates the
-website (`index.html`).
+Every morning at **06:00** (Europe/Copenhagen) a GitHub Actions workflow runs the
+scraper, filters for graduate/entry IT+business roles in Denmark, regenerates the
+website (`index.html`), commits the fresh data back to `main`, and deploys to
+GitHub Pages.
 
 ## Sources
 
@@ -39,21 +45,35 @@ A job is kept when it:
 - `scraper.py` — collects and filters jobs → `data/jobs.json`
 - `generate_site.py` — builds `index.html` from `data/jobs.json`
 - `index.html` — the website (open in any browser)
-- `data/jobs.json` — the raw collected data
-- `data/scrape.log` — daily run log
+- `data/jobs.json` — the raw collected data (committed so the site has content)
+- `data/scrape.log` — rolling run log
 - `run.sh` — manual full refresh (scrape + generate, prints summary)
+- `requirements.txt` — `requests`, `beautifulsoup4`
+- `.github/workflows/refresh.yml` — CI: scrape → generate → commit → deploy Pages
 
 ## Run manually
 
 ```bash
+pip install -r requirements.txt
 cd ~/gradjobs && bash run.sh
 ```
 
-## Schedule
+## Deployment & schedule
 
-Cron job `Graduate IT/Business jobs refresh` (id `ce6104f377bd`), `0 6 * * *`
-Europe/Copenhagen, runs `~/AppData/Local/hermes/scripts/graduate_jobs.sh`.
-Manage it with the Hermes cron tool (`/cron` or ask the agent).
+Hosted on GitHub Pages from the **GitHub Actions** build type (repo is public).
+Workflow: `.github/workflows/refresh.yml`.
+
+- **Schedule**: runs daily at **06:00 Europe/Copenhagen**. GitHub's cron is UTC,
+  so the workflow triggers at `04:00` *and* `05:00` UTC and a local-hour guard
+  lets exactly one through — this keeps 06:00 correct across both CET and CEST
+  (no manual daylight-saving edits).
+- **Also runs** on every push to `main` and via manual `workflow_dispatch`
+  (Actions tab → *Run workflow*).
+- The workflow commits refreshed `data/jobs.json` + `index.html` back to `main`
+  as `github-actions[bot]` with `[skip ci]` (pushes made with `GITHUB_TOKEN`
+  don't re-trigger workflows, so there is no loop).
+- A failed/dead scrape source is non-fatal — the deploy still ships the site.
+- Pages URL: https://benjamin-rohde-it.github.io/gradjobs/
 
 ## Adding a source
 
