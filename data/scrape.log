@@ -61,3 +61,23 @@ DONE: 44 unique relevant jobs -> data/jobs.json
    Accenture (Workday): 3
    Jobindex: 2
    Valcon: 1
+RSS sources...
+  Jobindex: 14
+  IT-Jobbank: 19
+  Akademikernes: 225
+Workday...
+  [Accenture] workday Denmark=30
+  [PwC] workday Denmark=18
+HR-Manager...
+SuccessFactors...
+WordPress...
+LinkedIn...
+
+DONE: 44 unique relevant jobs -> data/jobs.json
+   Akademikernes: 21
+   KPMG: 8
+   IT-Jobbank: 5
+   LinkedIn: 4
+   Accenture (Workday): 3
+   Jobindex: 2
+   Valcon: 1
