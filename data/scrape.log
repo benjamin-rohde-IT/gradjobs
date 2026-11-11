@@ -41,3 +41,23 @@ DONE: 88 unique relevant jobs -> data/jobs.json
    Accenture (Workday): 3
    Valcon: 2
 Wrote C:\Users\Benjamin\gradjobs\index.html (50725 bytes, 88 jobs)
+RSS sources...
+  Jobindex: 15
+  IT-Jobbank: 19
+  Akademikernes: 225
+Workday...
+  [Accenture] workday Denmark=31
+  [PwC] workday Denmark=18
+HR-Manager...
+SuccessFactors...
+WordPress...
+LinkedIn...
+
+DONE: 44 unique relevant jobs -> data/jobs.json
+   Akademikernes: 21
+   KPMG: 8
+   IT-Jobbank: 5
+   LinkedIn: 4
+   Accenture (Workday): 3
+   Jobindex: 2
+   Valcon: 1
